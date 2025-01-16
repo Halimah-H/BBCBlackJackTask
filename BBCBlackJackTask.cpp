@@ -111,62 +111,70 @@ public:
 };
 
 void testBlackjack() {
+    const int numPlayers = 3;  // Number of players - user input will play as player 1, players 2 and 3 are randomised
     Deck deck;
 
-    // Scenario 1: Initial hand has two cards
-    Hand playerHand;
-    playerHand.addCard(deck.deal());
-    playerHand.addCard(deck.deal());
-    std::cout << "Initial hand: ";
-    playerHand.display();
+    // Initialize hands for each player
+    std::vector<Hand> players(numPlayers);
 
-    // Scenario 2: Player hits and receives a card
-    playerHand.addCard(deck.deal());
-    std::cout << "After hit: ";
-    playerHand.display();
-
-    // Scenario 3: Player stands
-    std::cout << "After stand: ";
-    playerHand.display();
-
-    // Scenario 4: Valid hand under 21
-    if (!playerHand.isBust()) {
-        std::cout << "Hand is valid\n";
+    // Deal initial cards to each player
+    for (int i = 0; i < numPlayers; ++i) {
+        players[i].addCard(deck.deal());
+        players[i].addCard(deck.deal());
     }
 
-    // Scenario 5: Bust if over 21
-    while (!playerHand.isBust()) {
-        playerHand.addCard(deck.deal());
+    // Player turns
+    for (int i = 0; i < numPlayers; ++i) {
+        std::cout << "\nPlayer " << i + 1 << "'s turn:\n";
+        players[i].display();
+
+        bool playerDone = false;
+        while (!playerDone && !players[i].isBust()) {
+            std::cout << "Hit (H) or Stand (S)? ";
+            char choice;
+            std::cin >> choice;
+
+            if (choice == 'H' || choice == 'h') {
+                players[i].addCard(deck.deal());
+                std::cout << "After hit:\n";
+                players[i].display();
+            }
+            else if (choice == 'S' || choice == 's') {
+                playerDone = true;
+            }
+            else {
+                std::cout << "Invalid choice. Please enter 'H' or 'S'.\n";
+            }
+        }
+
+        if (players[i].isBust()) {
+            std::cout << "Player " << i + 1 << " is bust!\n";
+        }
+        else {
+            std::cout << "Player " << i + 1 << " stands with a score of " << players[i].calculateScore() << "\n";
+        }
     }
-    std::cout << "After bust: ";
-    playerHand.display();
-    if (playerHand.isBust()) {
-        std::cout << "Hand is bust\n";
+
+    // Determine the winner
+    int highestScore = 0;
+    int winner = -1;
+    for (int i = 0; i < numPlayers; ++i) {
+        int score = players[i].calculateScore();
+        if (!players[i].isBust() && score > highestScore) {
+            highestScore = score;
+            winner = i;
+        }
     }
 
-    // Scenario 6: Score evaluation with King and Ace
-    Hand hand1;
-    hand1.addCard(Card(10, "King"));
-    hand1.addCard(Card(11, "Ace"));
-    std::cout << "King and Ace: ";
-    hand1.display();
-
-    // Scenario 7: Score evaluation with King, Queen, and Ace
-    Hand hand2;
-    hand2.addCard(Card(10, "King"));
-    hand2.addCard(Card(10, "Queen"));
-    hand2.addCard(Card(11, "Ace"));
-    std::cout << "King, Queen, and Ace: ";
-    hand2.display();
-
-    // Scenario 8: Score evaluation with two Aces and a Nine
-    Hand hand3;
-    hand3.addCard(Card(11, "Ace"));
-    hand3.addCard(Card(11, "Ace"));
-    hand3.addCard(Card(9, "9"));
-    std::cout << "Two Aces and a Nine: ";
-    hand3.display();
+    std::cout << "\nGame Over!\n";
+    if (winner != -1) {
+        std::cout << "Player " << winner + 1 << " wins with a score of " << highestScore << "!\n";
+    }
+    else {
+        std::cout << "All players busted. No winner.\n";
+    }
 }
+
 
 int main()
 {
