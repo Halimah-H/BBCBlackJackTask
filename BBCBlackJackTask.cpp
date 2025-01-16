@@ -7,7 +7,8 @@
 #include <random>
 #include <ctime>
 #include <string> // For std::stoi
-#include <iomanip> // For formatting output
+#include <sstream> // Required for std::ostringstream
+#include <iomanip> // Required for std::setw
 
 class Card {   //creating object to store different types of cards
 public:
@@ -20,7 +21,7 @@ public:
 class Deck {   //An object to store the cards that a user has in their deck
 private:
     std::vector<Card> cards;   //Vector data type is used as there will be multiple card objects used with potential to change
-    std::mt19937 rng;
+    std::mt19937 rng;  //Generating a random number
 
 public:
     Deck() {
@@ -53,6 +54,26 @@ class Hand {
 private:
     std::vector<Card> cards;
 
+    // Helper function to generate ASCII art for a card
+    std::string getCardArt(const Card& card) const {
+        std::ostringstream oss;
+
+        // Format card name to fit within 2 characters
+        std::string displayName = card.name;
+        if (card.name.length() > 2) {
+            displayName = card.name.substr(0, 2);
+        }
+
+        // Build card art
+        oss << "+-------+\n";
+        oss << "| " << std::setw(2) << displayName << "    |\n";
+        oss << "|       |\n";
+        oss << "|       |\n";
+        oss << "|    " << std::setw(2) << displayName << " |\n";
+        oss << "+-------+";
+
+        return oss.str();
+    }
 
 public:
     void addCard(const Card& card) {
@@ -76,10 +97,12 @@ public:
     }
 
     void display() const {
+        // Display each card using ASCII art
+        std::cout << "Your hand:\n";
         for (const auto& card : cards) {
-            std::cout << card.name << " ";
+            std::cout << getCardArt(card) << "\n";
         }
-        std::cout << "(Score: " << calculateScore() << ")\n";
+        std::cout << "Total Score: " << calculateScore() << "\n";
     }
 
     bool isBust() const {
